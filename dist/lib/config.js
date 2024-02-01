@@ -38,7 +38,7 @@ var _default = exports["default"] = {
   gulpCssSplitBeforeSrc: gulpConfig.cssSplitBeforeSrc,
   gulpJsSplitBeforeSrc: gulpConfig.jsSplitBeforeSrc,
   gulpHtmlSplitBeforeSrc: gulpConfig.htmlSplitBeforeSrc,
-  gulpImgIgnore: gulpConfig.imgIgnore,
+  gulpImgIgnore: _path["default"].resolve(pjPath, gulpConfig.imgIgnore),
   gulpPort: gulpConfig.port,
   gulpImgSplitSrc: gulpConfig.imgSplitSrc,
   gulpImageName: gulpConfig.imageName,

@@ -23,7 +23,7 @@ var replacePath = function replacePath(reg, replaceStr) {
     if (file.isBuffer()) {
       file.contents = Buffer.from(file.contents.toString().replace(reg, replaceStr));
     }
-    callback();
+    callback(null, file);
   };
   return transform;
 };
@@ -40,7 +40,7 @@ var addTimestamp = function addTimestamp(reg) {
         return "".concat(match, "?t=").concat(new Date().getTime());
       }));
     }
-    callback();
+    callback(null, file);
   };
   return transform;
 };

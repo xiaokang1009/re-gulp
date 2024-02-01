@@ -7,14 +7,13 @@ var _gulpSass = _interopRequireDefault(require("gulp-sass"));
 var _sass = _interopRequireDefault(require("sass"));
 var _gulpConnect = _interopRequireDefault(require("gulp-connect"));
 var _gulpWatch = _interopRequireDefault(require("gulp-watch"));
-var _del = _interopRequireDefault(require("del"));
+var _rimraf = require("rimraf");
 var _gulpAutoprefixer = _interopRequireDefault(require("gulp-autoprefixer"));
 var _gulpCleanCss = _interopRequireDefault(require("gulp-clean-css"));
 var _gulpUglify = _interopRequireDefault(require("gulp-uglify"));
 var _gulpHtmlmin = _interopRequireDefault(require("gulp-htmlmin"));
 var _utils = _interopRequireDefault(require("./lib/utils"));
 var _spriteGenerator = _interopRequireDefault(require("./lib/spriteGenerator"));
-var _path = _interopRequireDefault(require("path"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -53,80 +52,84 @@ var gulpTask = {
   isHtmlMinify: _config["default"].gulpIsHtmlMinify,
   // js 任务
   taskJs: function taskJs() {
-    var stream = _gulp["default"].src(this.src.js).pipe(_utils["default"].addTimestamp(/\.(gif|ttf|otf|png|jpe?g|svg|avif|json)/g)); // 添加时间戳
-    !this.isDev && stream.pipe(_utils["default"].replacePath(this.jsBeforeSplitAddrReg, this.splitAddr)); // 分离路径
-    this.isBabel && stream.pipe((0, _gulpBabel["default"])()); // babel
-    this.isJsMinify && stream.pipe((0, _gulpUglify["default"])()); // 压缩js
-    this.isEncoding && stream.pipe(_utils["default"].convertEncoding({
-      from: "utf-8",
-      to: "gbk"
-    })); // 转换编码
-    stream.pipe(_gulp["default"].dest(this.dest.js));
-    this.isDev && stream.pipe(_gulpConnect["default"].reload());
+    var stream = _gulp["default"].src(gulpTask.src.js).pipe(_utils["default"].addTimestamp(/\.(gif|ttf|otf|png|jpe?g|svg|avif|json)/g)); // 添加时间戳
+    !gulpTask.isDev && stream.pipe(_utils["default"].replacePath(gulpTask.jsBeforeSplitAddrReg, gulpTask.splitAddr)); // 分离路径
+    gulpTask.isBabel && stream.pipe((0, _gulpBabel["default"])()); // babel
+    gulpTask.isJsMinify && stream.pipe((0, _gulpUglify["default"])()); // 压缩js
+    if (gulpTask.isEncoding) {
+      stream = stream.pipe(_utils["default"].convertEncoding({
+        from: "utf-8",
+        to: "gbk"
+      })); // 转换编码
+    }
+    stream.pipe(_gulp["default"].dest(gulpTask.dest.js));
+    gulpTask.isDev && stream.pipe(_gulpConnect["default"].reload());
     return stream;
   },
   // lib 任务
   taskLib: function taskLib() {
-    var stream = _gulp["default"].src(this.src.lib).pipe(_gulp["default"].dest(this.dest.lib));
-    this.isDev && stream.pipe(_gulpConnect["default"].reload());
+    var stream = _gulp["default"].src(gulpTask.src.lib).pipe(_gulp["default"].dest(gulpTask.dest.lib));
+    gulpTask.isDev && stream.pipe(_gulpConnect["default"].reload());
     return stream;
   },
   // html 任务
   taskHtml: function taskHtml() {
-    var stream = _gulp["default"].src(this.src.html).pipe(_utils["default"].addTimestamp(/\.(gif|ttf|otf|png|jpe?g|svg|avif|js|css)/g)); // 添加时间戳
-    !this.isDev && stream.pipe(_utils["default"].replacePath(this.htmlBeforeSplitAddrReg, this.splitAddr)); // 分离路径
-    this.isHtmlMinify && stream.pipe((0, _gulpHtmlmin["default"])()); // 压缩html
-    this.isEncoding && stream.pipe(_utils["default"].convertEncoding({
-      from: "utf-8",
-      to: "gbk"
-    })); // 转换编码
-    stream.pipe(_gulp["default"].dest(this.dest.html));
-    this.isDev && stream.pipe(_gulpConnect["default"].reload());
+    var stream = _gulp["default"].src(gulpTask.src.html).pipe(_utils["default"].addTimestamp(/\.(gif|ttf|otf|png|jpe?g|svg|avif|js|css)/g)); // 添加时间戳
+    !gulpTask.isDev && stream.pipe(_utils["default"].replacePath(gulpTask.htmlBeforeSplitAddrReg, gulpTask.splitAddr)); // 分离路径
+    gulpTask.isHtmlMinify && stream.pipe((0, _gulpHtmlmin["default"])()); // 压缩html
+    if (gulpTask.isEncoding) {
+      stream = stream.pipe(_utils["default"].convertEncoding({
+        from: "utf-8",
+        to: "gbk"
+      })); // 转换编码
+    }
+    stream.pipe(_gulp["default"].dest(gulpTask.dest.html));
+    gulpTask.isDev && stream.pipe(_gulpConnect["default"].reload());
     return stream;
   },
   // img 任务
   taskImg: function taskImg() {
-    var stream = _gulp["default"].src(_toConsumableArray(this.src.img)).pipe(_gulp["default"].dest(this.dest.img));
-    this.isDev && stream.pipe(_gulpConnect["default"].reload());
+    var stream = _gulp["default"].src(_toConsumableArray(gulpTask.src.img)).pipe(_gulp["default"].dest(gulpTask.dest.img));
+    gulpTask.isDev && stream.pipe(_gulpConnect["default"].reload());
     return stream;
   },
   // scss 任务
   taskScss: function taskScss() {
-    var stream = _gulp["default"].src(this.src.scss).pipe(sass({
+    var stream = _gulp["default"].src(gulpTask.src.scss).pipe(sass({
       outputStyle: "expanded"
     })).pipe((0, _gulpAutoprefixer["default"])());
-    stream = this.isSprite ? stream.pipe((0, _spriteGenerator["default"])()) : stream;
+    stream = gulpTask.isSprite ? stream.pipe((0, _spriteGenerator["default"])()) : stream;
     stream.pipe((0, _gulpCleanCss["default"])({
-      format: this.isCssMinify ? false : "beautify"
+      format: gulpTask.isCssMinify ? false : "beautify"
     })).pipe(_utils["default"].addTimestamp(/\.(gif|ttf|otf|png|jpe?g|svg|avif)/g)); // 添加时间戳
-    !this.isDev && stream.pipe(_utils["default"].replacePath(this.cssBeforeSplitAddrReg, this.splitAddr)); // 分离路径
-    this.isEncoding && stream.pipe(_utils["default"].convertEncoding({
-      from: "utf-8",
-      to: "gbk"
-    })); // 转换编码
-    stream.pipe(_gulp["default"].dest(this.dest.scss));
-    this.isDev && stream.pipe(_gulpConnect["default"].reload());
+    !gulpTask.isDev && stream.pipe(_utils["default"].replacePath(gulpTask.cssBeforeSplitAddrReg, gulpTask.splitAddr)); // 分离路径
+    if (gulpTask.isEncoding) {
+      stream = stream.pipe(_utils["default"].convertEncoding({
+        from: "utf-8",
+        to: "gbk"
+      })); // 转换编码
+    }
+    stream.pipe(_gulp["default"].dest(gulpTask.dest.scss));
+    gulpTask.isDev && stream.pipe(_gulpConnect["default"].reload());
     return stream;
   },
   // 清除任务
   taskClean: function taskClean() {
-    return (0, _del["default"])([_path["default"].resolve(this.outPath, "./**/*")], {
-      force: true
-    });
+    return (0, _rimraf.rimraf)(gulpTask.outPath);
   },
   // watch 任务
   taskWatch: function taskWatch() {
     _gulpConnect["default"].server({
-      root: this.outPath,
-      port: this.port,
+      root: gulpTask.outPath,
+      port: gulpTask.port,
       livereload: true
     });
-    (0, _gulpWatch["default"])(this.src.js, this.taskJs.bind(this));
-    (0, _gulpWatch["default"])(this.src.lib, this.taskLib.bind(this));
-    (0, _gulpWatch["default"])(this.src.html, this.taskHtml.bind(this));
-    (0, _gulpWatch["default"])(_toConsumableArray(this.src.img), this.taskImg.bind(this));
-    (0, _gulpWatch["default"])(this.src.scss, this.taskScss.bind(this));
+    (0, _gulpWatch["default"])(gulpTask.src.js, gulpTask.taskJs.bind(gulpTask));
+    (0, _gulpWatch["default"])(gulpTask.src.lib, gulpTask.taskLib.bind(gulpTask));
+    (0, _gulpWatch["default"])(gulpTask.src.html, gulpTask.taskHtml.bind(gulpTask));
+    (0, _gulpWatch["default"])(_toConsumableArray(gulpTask.src.img), gulpTask.taskImg.bind(gulpTask));
+    (0, _gulpWatch["default"])(gulpTask.src.scss, gulpTask.taskScss.bind(gulpTask));
   }
 };
-_gulp["default"].task("build", _gulp["default"].series(gulpTask.taskClean.bind(gulpTask), _gulp["default"].parallel(gulpTask.taskJs.bind(gulpTask), gulpTask.taskLib.bind(gulpTask), gulpTask.taskHtml.bind(gulpTask), gulpTask.taskImg.bind(gulpTask), gulpTask.taskScss.bind(gulpTask))));
-_gulp["default"].task("dev", _gulp["default"].series("build", gulpTask.taskWatch.bind(gulpTask)));
+_gulp["default"].task("build", _gulp["default"].series(gulpTask.taskClean, _gulp["default"].series(gulpTask.taskJs, gulpTask.taskLib, gulpTask.taskHtml, gulpTask.taskImg, gulpTask.taskScss)));
+_gulp["default"].task("dev", _gulp["default"].series("build", gulpTask.taskWatch));

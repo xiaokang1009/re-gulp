@@ -67,7 +67,7 @@ var spriteGenerator = function spriteGenerator() {
                   var imgPath = decl.value.match(/sprite\/.*\.(png|jpe?g)/)[0];
                   if (!imgList[imgPath]) {
                     imgMap[imgPath] = true;
-                    imgList.push("".concat(innerPath, "/").concat(imgPath));
+                    imgList.push("".concat(innerPath, "/").concat(gulpImgName, "/").concat(imgPath));
                   }
                   selectorList.push(rule.selector);
                 }
@@ -100,7 +100,7 @@ var spriteGenerator = function spriteGenerator() {
                   var imgPath = decl.value.match(/sprite\/.*\.(png|jpe?g)/)[0];
                   if (imgMap[imgPath]) {
                     decl.remove();
-                    var position = spriteResult === null || spriteResult === void 0 ? void 0 : spriteResult.coordinates["".concat(innerPath, "/").concat(imgPath)];
+                    var position = spriteResult === null || spriteResult === void 0 ? void 0 : spriteResult.coordinates["".concat(innerPath, "/").concat(gulpImgName, "/").concat(imgPath)];
                     rule.append({
                       prop: "background-position",
                       value: "-".concat(position.x, "px -").concat(position.y, "px")
