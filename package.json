@@ -11,7 +11,11 @@
     "build:js": "babel packages --out-dir dist --extensions \".ts,.js\" --ignore \"**/*.d.ts\"",
     "rimraf": "rimraf dist"
   },
-  "bin":  "./dist/bin/re-gulp.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaokang1009/re-gulp.git"
+  },
+  "bin": "./dist/bin/re-gulp.js",
   "author": "xiaokang1009",
   "license": "ISC",
   "devDependencies": {
