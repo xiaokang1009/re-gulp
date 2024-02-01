@@ -5,7 +5,7 @@ import gulpSass from "gulp-sass"
 import dartSass from "sass"
 import connect from "gulp-connect"
 import watch from "gulp-watch"
-import del from "del"
+import { rimraf } from "rimraf"
 import autofixer from "gulp-autoprefixer"
 import cleanCSS from "gulp-clean-css"
 import uglify from "gulp-uglify"
@@ -47,121 +47,128 @@ const gulpTask = {
   isHtmlMinify: config.gulpIsHtmlMinify,
   // js 任务
   taskJs() {
-    const stream = gulp
-      .src(this.src.js)
+    let stream = gulp
+      .src(gulpTask.src.js)
       .pipe(utils.addTimestamp(/\.(gif|ttf|otf|png|jpe?g|svg|avif|json)/g)) // 添加时间戳
-    !this.isDev &&
-      stream.pipe(utils.replacePath(this.jsBeforeSplitAddrReg, this.splitAddr)) // 分离路径
-    this.isBabel && stream.pipe(babel()) // babel
-    this.isJsMinify && stream.pipe(uglify()) // 压缩js
-    this.isEncoding &&
+    !gulpTask.isDev &&
       stream.pipe(
+        utils.replacePath(gulpTask.jsBeforeSplitAddrReg, gulpTask.splitAddr)
+      ) // 分离路径
+    gulpTask.isBabel && stream.pipe(babel()) // babel
+    gulpTask.isJsMinify && stream.pipe(uglify()) // 压缩js
+    if (gulpTask.isEncoding) {
+      stream = stream.pipe(
         utils.convertEncoding({
           from: "utf-8",
           to: "gbk"
         })
       ) // 转换编码
-    stream.pipe(gulp.dest(this.dest.js))
-    this.isDev && stream.pipe(connect.reload())
+    }
+    stream.pipe(gulp.dest(gulpTask.dest.js))
+    gulpTask.isDev && stream.pipe(connect.reload())
     return stream
   },
   // lib 任务
   taskLib() {
-    const stream = gulp.src(this.src.lib).pipe(gulp.dest(this.dest.lib))
-    this.isDev && stream.pipe(connect.reload())
+    const stream = gulp.src(gulpTask.src.lib).pipe(gulp.dest(gulpTask.dest.lib))
+    gulpTask.isDev && stream.pipe(connect.reload())
     return stream
   },
   // html 任务
   taskHtml() {
-    const stream = gulp
-      .src(this.src.html)
+    let stream = gulp
+      .src(gulpTask.src.html)
       .pipe(utils.addTimestamp(/\.(gif|ttf|otf|png|jpe?g|svg|avif|js|css)/g)) // 添加时间戳
-    !this.isDev &&
+    !gulpTask.isDev &&
       stream.pipe(
-        utils.replacePath(this.htmlBeforeSplitAddrReg, this.splitAddr)
+        utils.replacePath(gulpTask.htmlBeforeSplitAddrReg, gulpTask.splitAddr)
       ) // 分离路径
-    this.isHtmlMinify && stream.pipe(htmlmin()) // 压缩html
-    this.isEncoding &&
-      stream.pipe(
+    gulpTask.isHtmlMinify && stream.pipe(htmlmin()) // 压缩html
+    if (gulpTask.isEncoding) {
+      stream = stream.pipe(
         utils.convertEncoding({
           from: "utf-8",
           to: "gbk"
         })
       ) // 转换编码
-    stream.pipe(gulp.dest(this.dest.html))
-    this.isDev && stream.pipe(connect.reload())
+    }
+    stream.pipe(gulp.dest(gulpTask.dest.html))
+    gulpTask.isDev && stream.pipe(connect.reload())
     return stream
   },
   // img 任务
   taskImg() {
-    const stream = gulp.src([...this.src.img]).pipe(gulp.dest(this.dest.img))
-    this.isDev && stream.pipe(connect.reload())
+    const stream = gulp
+      .src([...gulpTask.src.img])
+      .pipe(gulp.dest(gulpTask.dest.img))
+    gulpTask.isDev && stream.pipe(connect.reload())
     return stream
   },
   // scss 任务
   taskScss() {
     let stream = gulp
-      .src(this.src.scss)
+      .src(gulpTask.src.scss)
       .pipe(
         sass({
           outputStyle: "expanded"
         })
       )
       .pipe(autofixer())
-    stream = this.isSprite ? stream.pipe(spriteGenerator()) : stream
+    stream = gulpTask.isSprite ? stream.pipe(spriteGenerator()) : stream
     stream
       .pipe(
         cleanCSS({
-          format: this.isCssMinify ? false : "beautify"
+          format: gulpTask.isCssMinify ? false : "beautify"
         })
       )
       .pipe(utils.addTimestamp(/\.(gif|ttf|otf|png|jpe?g|svg|avif)/g)) // 添加时间戳
-    !this.isDev &&
-      stream.pipe(utils.replacePath(this.cssBeforeSplitAddrReg, this.splitAddr)) // 分离路径
-    this.isEncoding &&
+    !gulpTask.isDev &&
       stream.pipe(
+        utils.replacePath(gulpTask.cssBeforeSplitAddrReg, gulpTask.splitAddr)
+      ) // 分离路径
+    if (gulpTask.isEncoding) {
+      stream = stream.pipe(
         utils.convertEncoding({
           from: "utf-8",
           to: "gbk"
         })
       ) // 转换编码
-    stream.pipe(gulp.dest(this.dest.scss))
-    this.isDev && stream.pipe(connect.reload())
+    }
+    stream.pipe(gulp.dest(gulpTask.dest.scss))
+    gulpTask.isDev && stream.pipe(connect.reload())
     return stream
   },
   // 清除任务
   taskClean() {
-    return del([path.resolve(this.outPath, "./**/*")], {
-      force: true
-    })
+    return rimraf(gulpTask.outPath)
   },
   // watch 任务
   taskWatch() {
     connect.server({
-      root: this.outPath,
-      port: this.port,
+      root: gulpTask.outPath,
+      port: gulpTask.port,
       livereload: true
     })
-    watch(this.src.js, this.taskJs.bind(this))
-    watch(this.src.lib, this.taskLib.bind(this))
-    watch(this.src.html, this.taskHtml.bind(this))
-    watch([...this.src.img], this.taskImg.bind(this))
-    watch(this.src.scss, this.taskScss.bind(this))
+    watch(gulpTask.src.js, gulpTask.taskJs.bind(gulpTask))
+    watch(gulpTask.src.lib, gulpTask.taskLib.bind(gulpTask))
+    watch(gulpTask.src.html, gulpTask.taskHtml.bind(gulpTask))
+    watch([...gulpTask.src.img], gulpTask.taskImg.bind(gulpTask))
+    watch(gulpTask.src.scss, gulpTask.taskScss.bind(gulpTask))
   }
 } as const
 
 gulp.task(
   "build",
   gulp.series(
-    gulpTask.taskClean.bind(gulpTask),
-    gulp.parallel(
-      gulpTask.taskJs.bind(gulpTask),
-      gulpTask.taskLib.bind(gulpTask),
-      gulpTask.taskHtml.bind(gulpTask),
-      gulpTask.taskImg.bind(gulpTask),
-      gulpTask.taskScss.bind(gulpTask)
+    gulpTask.taskClean,
+    gulp.series(
+      gulpTask.taskJs,
+      gulpTask.taskLib,
+      gulpTask.taskHtml,
+      gulpTask.taskImg,
+      gulpTask.taskScss
     )
   )
 )
 
-gulp.task("dev", gulp.series("build", gulpTask.taskWatch.bind(gulpTask)))
+gulp.task("dev", gulp.series("build", gulpTask.taskWatch))

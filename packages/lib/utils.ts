@@ -17,7 +17,7 @@ const replacePath = (
         file.contents.toString().replace(reg, replaceStr)
       )
     }
-    callback()
+    callback(null, file)
   }
   return transform
 }
@@ -36,7 +36,7 @@ const addTimestamp = (reg: RegExp): NodeJS.ReadWriteStream => {
           })
       )
     }
-    callback()
+    callback(null, file)
   }
   return transform
 }

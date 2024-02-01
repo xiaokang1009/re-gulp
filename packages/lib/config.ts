@@ -90,7 +90,7 @@ export default {
   gulpCssSplitBeforeSrc: gulpConfig.cssSplitBeforeSrc,
   gulpJsSplitBeforeSrc: gulpConfig.jsSplitBeforeSrc,
   gulpHtmlSplitBeforeSrc: gulpConfig.htmlSplitBeforeSrc,
-  gulpImgIgnore: gulpConfig.imgIgnore,
+  gulpImgIgnore: path.resolve(pjPath, gulpConfig.imgIgnore as string),
   gulpPort: gulpConfig.port,
   gulpImgSplitSrc: gulpConfig.imgSplitSrc,
   gulpImageName: gulpConfig.imageName,

@@ -48,7 +48,7 @@ const spriteGenerator = (): NodeJS.ReadWriteStream => {
             const imgPath = decl.value.match(/sprite\/.*\.(png|jpe?g)/)![0]
             if (!imgList[imgPath]) {
               imgMap[imgPath] = true
-              imgList.push(`${innerPath}/${imgPath}`)
+              imgList.push(`${innerPath}/${gulpImgName}/${imgPath}`)
             }
             selectorList.push(rule.selector)
           }
@@ -76,7 +76,9 @@ const spriteGenerator = (): NodeJS.ReadWriteStream => {
             if (imgMap[imgPath]) {
               decl.remove()
               const position =
-                spriteResult?.coordinates[`${innerPath}/${imgPath}`]
+                spriteResult?.coordinates[
+                  `${innerPath}/${gulpImgName}/${imgPath}`
+                ]
               rule.append({
                 prop: "background-position",
                 value: `-${position!.x}px -${position!.y}px`
