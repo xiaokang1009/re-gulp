@@ -22,7 +22,6 @@
     "@babel/cli": "^7.23.9",
     "@babel/core": "^7.23.9",
     "@babel/plugin-transform-modules-commonjs": "^7.23.3",
-    "@babel/preset-env": "^7.23.9",
     "@babel/preset-typescript": "^7.23.3",
     "@types/gulp": "^4.0.17",
     "@types/gulp-autoprefixer": "^0.0.37",
@@ -35,7 +34,11 @@
     "@types/gulp-watch": "^4.1.39",
     "@types/node": "^20.11.7",
     "@types/spritesmith": "^3.4.5",
-    "@types/vinyl": "^2.0.11",
+    "@types/vinyl": "^2.0.11"
+  },
+  "dependencies": {
+    "@babel/preset-env": "^7.23.9",
+    "log-symbols": "^6.0.0",
     "del": "^6.1.1",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
@@ -55,8 +58,5 @@
     "spritesmith": "^3.4.1",
     "typescript": "^5.3.3",
     "vinyl": "^3.0.0"
-  },
-  "dependencies": {
-    "log-symbols": "^6.0.0"
   }
 }
